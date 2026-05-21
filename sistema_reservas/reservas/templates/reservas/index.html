@@ -1,0 +1,180 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel de Reservas - UniFacid</title>
+  <link rel="stylesheet" href="{% static 'reservas/style.css' %}">
+</head>
+<body>
+  <main class="content">
+    <section class="topbar">
+      <div>
+        <h2>UniFacid Wyden</h2>
+        <p>Sistema de Reservas Acadêmicas.</p>
+      </div>
+      <button class="theme-btn" id="themeToggle" type="button">Tema escuro</button>
+    </section>
+
+    {% if messages %}
+      <section class="messages">
+        {% for message in messages %}
+          <div class="message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </section>
+    {% endif %}
+
+    <section class="cards">
+      <div class="card">
+        <span>Reservas hoje</span>
+        <strong>{{ reservas_hoje }}</strong>
+      </div>
+
+      <div class="card">
+        <span>Salas cadastradas</span>
+        <strong>{{ total_salas }}</strong>
+      </div>
+
+      <div class="card">
+        <span>Salas disponíveis agora</span>
+        <strong>{{ salas_disponiveis }}</strong>
+      </div>
+
+      <div class="card">
+        <span>Em uso agora</span>
+        <strong>{{ em_uso_agora }}</strong>
+      </div>
+    </section>
+
+    <section class="main-grid">
+      <div class="panel">
+        <h3>Nova reserva</h3>
+
+        <form method="post" action="{% url 'painel' %}">
+          {% csrf_token %}
+
+          <div class="form-group">
+            <label for="sala_id">Sala</label>
+            <select id="sala_id" name="sala_id" required>
+              <option value="">Selecione uma sala</option>
+              {% for sala in salas %}
+                <option value="{{ sala.id }}">{{ sala.nome }} — {{ sala.capacidade }} lugares</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="nome">Professor solicitante</label>
+            <input id="nome" name="nome" type="text" placeholder="Ex: Prof. Marcos Silva" required />
+          </div>
+
+          <div class="form-group">
+            <label for="matricula">Matrícula</label>
+            <input id="matricula" name="matricula" type="text" placeholder="Ex: 202602442681" required />
+          </div>
+
+          <div class="form-group">
+            <label for="data">Data da reserva</label>
+            <input id="data" name="data" type="date" required />
+          </div>
+
+          <div class="row">
+            <div class="form-group">
+              <label for="hora_inicio">Início</label>
+              <input id="hora_inicio" name="hora_inicio" type="time" required />
+            </div>
+
+            <div class="form-group">
+              <label for="hora_fim">Fim</label>
+              <input id="hora_fim" name="hora_fim" type="time" required />
+            </div>
+          </div>
+
+          <button class="btn" type="submit">Criar reserva</button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h3>Salas cadastradas</h3>
+
+        <div class="room-list">
+          {% for sala in salas %}
+            <div class="room-item">
+              <div>
+                <h4>{{ sala.nome }}</h4>
+                <p>{{ sala.capacidade }} lugares</p>
+              </div>
+
+              {% if sala.id in salas_em_uso_ids %}
+                <span class="badge busy">Em uso</span>
+              {% else %}
+                <span class="badge available">Disponível</span>
+              {% endif %}
+            </div>
+          {% empty %}
+            <p>Nenhuma sala cadastrada.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section class="panel reservations-panel">
+      <h3>Reservas ativas</h3>
+
+      <table class="reserved-table">
+        <thead>
+          <tr>
+            <th>Professor</th>
+            <th>Matrícula</th>
+            <th>Sala</th>
+            <th>Data</th>
+            <th>Horário</th>
+            <th>Status</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for reserva in reservas %}
+            <tr>
+              <td class="teacher">{{ reserva.funcionario.nome }}</td>
+              <td>{{ reserva.funcionario.matricula }}</td>
+              <td>{{ reserva.sala.nome }}</td>
+              <td>{{ reserva.data }}</td>
+              <td>{{ reserva.hora_inicio }} às {{ reserva.hora_fim }}</td>
+              <td><span class="badge available">{{ reserva.status }}</span></td>
+              <td>
+                <form method="post" action="{% url 'cancelar_reserva' reserva.id %}">
+                  {% csrf_token %}
+                  <button class="cancel-btn" type="submit">Cancelar</button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7">Nenhuma reserva ativa cadastrada.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    const button = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('theme');
+
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark');
+      button.textContent = 'Tema claro';
+    }
+
+    button.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      const darkMode = document.body.classList.contains('dark');
+      localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+      button.textContent = darkMode ? 'Tema claro' : 'Tema escuro';
+    });
+  </script>
+</body>
+</html>
