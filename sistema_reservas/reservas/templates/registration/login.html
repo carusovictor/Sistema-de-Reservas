@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistema de Reservas</title>
+    <link rel="stylesheet" href="{% static 'reservas/style.css' %}">
+</head>
+<body>
+    <main class="auth-page">
+        <section class="auth-card">
+            <h1>Entrar</h1>
+            <p>Acesse o Sistema de Reservas Acadêmicas.</p>
+
+            {% if form.errors %}
+                <div class="message error">Usuário ou Senha inválidos.</div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="id_username">usuário</label>
+                    {{ form.username }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password">Senha</label>
+                    {{ form.password }}
+                </div>
+
+                <button class="btn" type="submit">Entrar</button>
+            </form>
+
+            <p class="auth-link">
+                Ainda não tem conta?
+                <a href="{% url 'cadastro' %}">Criar Conta</a>
+            </p>
+        </section>
+    </main>
+</body>
+</html> 

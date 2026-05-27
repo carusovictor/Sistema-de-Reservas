@@ -4,6 +4,11 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .forms import CadastroProfessorForm
+
 from .models import Funcionario, Reserva, Sala
 
 
@@ -40,7 +45,23 @@ def existe_conflito(sala_id: int, data_txt: str, inicio: str, fim: str):
         hora_fim__gt=inicio,
     ).exists()
 
+def cadastro(request):
+    if request.method == 'POST':
+        form = CadastroProfessorForm(request.POST)
 
+        if form.is_valid():
+            usuario = form.save()
+            login(request, usuario)
+            messages.success(request, 'Cadastro realizado com sucesso.')
+            return redirect('painel')
+        
+    else:
+        form = CadastroProfessorForm()
+
+    return render(request, 'registration/cadastro.html', {'form': form})
+
+
+@login_required
 def painel(request):
     if request.method == 'POST':
         sala_id = request.POST.get('sala_id')
@@ -131,7 +152,7 @@ def painel(request):
     }
     return render(request, 'reservas/index.html', contexto)
 
-
+@login_required
 @require_POST
 def cancelar_reserva(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id)

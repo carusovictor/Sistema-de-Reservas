@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Sistema de Reservas</title>
+    <link rel="stylesheet" href="{% static 'reservas/style.css' %}">
+</head>
+<body>
+    <main class="auth-page">
+        <section class="auth-card">
+            <h1>Criar Conta</h1>
+            <p>Cadastre seu usuário para reservar salas.</p>
+
+            <form method="post">
+                {% csrf_token %}
+
+                {{ form.as_p }}
+
+                <button class="btn" type="submit">Cadastrar</button>
+            </form>
+
+            <p class="auth-link">
+                Já tem conta?
+                <a href="{% url 'login' %}">Entrar</a>
+            </p>
+        </section>
+    </main>
+</body>
+</html>

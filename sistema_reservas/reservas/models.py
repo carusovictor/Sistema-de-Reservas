@@ -1,4 +1,16 @@
 from django.db import models
+from django.contrib.auth.models import User
+
+
+class PerfilProfessor(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    matricula = models.CharField(max_length=20, unique=True)
+    telefone = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.user.first_name
+
+
 
 class Funcionario(models.Model):
     matricula = models.IntegerField(primary_key=True)

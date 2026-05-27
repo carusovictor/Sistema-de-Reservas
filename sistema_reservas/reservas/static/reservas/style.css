@@ -344,3 +344,70 @@ body.dark .room-item {
     overflow-x: auto;
   }
 }
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+}
+
+.auth_card {
+  width: 100%;
+  max-width: 430px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 22px;
+  padding: 32px;
+  box-shadow: 0 8px 20px rgba(15, 23, 43, 0.08);
+}
+
+.auth-card h1 {
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.auth-card p {
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+.auth-card ul {
+  margin: 10px 0 18px 20px;
+  color: #6b7280;
+  font-size: 13px; 
+}
+
+.auth-card .helptext {
+  display: block;
+  color: #6b7280;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.auth-link {
+  margin-top: 18px;
+  text-align: center;
+}
+
+.auth-link a {
+  color: #B0005A;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+body.dark .auth-card {
+  background: #111827;
+  border-color: #263244;
+}
+
+body.dark .auth-card h1 {
+  color: #f9fafb;
+}
+
+body.dark .auth-card p,
+body.dark .auth-card ul,
+body.dark .auth-card .helptext {
+  color: #cbd5e1;
+}
