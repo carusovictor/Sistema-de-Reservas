@@ -37,6 +37,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 24px;
 
     box-sizing: border-box;
 
@@ -53,8 +54,32 @@ body {
 
 .topbar p {
     margin-top: 6px;
+    margin-bottom: 0;
     opacity: 0.9;
     font-size: 15px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.user-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.2;
+}
+
+.user-box span {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.user-box strong {
+  font-size: 16px;
+  font-weight: 700  ;
 }
 
 .theme-btn {
@@ -65,6 +90,42 @@ body {
   border-radius: 12px;
   font-weight: bold;
   cursor: pointer;
+}
+
+.logout-form {
+  margin: 0;
+}
+
+.logout-btn {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.14);
+  color: white;
+  padding: 11px 14px;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.theme-btn:hover,
+.logout-btn:hover {
+    transform: translateY(-1px);
+}
+
+@media (max-width: 800px) {
+    .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .topbar-actions {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .user-box {
+        align-items: flex-start;
+    }
 }
 
 .cards {
@@ -96,6 +157,23 @@ body {
   margin-top: 8px;
   font-size: 30px;
   color: #111827;
+}
+
+.readonly-info {
+  width: 100%;
+  padding: 15px 18px;
+  border-radius: 14px;
+  border: 1px solid #d1d5db;
+  background: #f3f4f6;
+  color: #374151;
+  font-weight: 700;
+  box-sizing: border-box;
+}
+
+body.dark .readonly-info {
+  background: #1f2937;
+  border-color: #374151;
+  color: #f9fafb;
 }
 
 .main-grid {
@@ -410,4 +488,10 @@ body.dark .auth-card p,
 body.dark .auth-card ul,
 body.dark .auth-card .helptext {
   color: #cbd5e1;
+}
+
+.muted-text {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
 }

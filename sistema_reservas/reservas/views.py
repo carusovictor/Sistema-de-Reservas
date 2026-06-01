@@ -1,24 +1,25 @@
-from datetime import date, datetime
+from datetime import date, datetime # trabalhar com datas
 
+from django.contrib import messages # mostrar notificações na tela
+from django.shortcuts import get_object_or_404, redirect, render # atalhos de html
+from django.views.decorators.http import require_POST #essa função so pode ser chamada por POST
+
+from django.contrib.auth import login #coloca usuario dentro de uma sessão
+from django.contrib.auth.decorators import login_required # só entra no site se estiver logado
 from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_POST
+from .forms import CadastroProfessorForm #formulario personalizado do .forms
 
-from django.contrib.auth import login
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .forms import CadastroProfessorForm
-
-from .models import Funcionario, Reserva, Sala
+from .models import Funcionario, Reserva, Sala #importa os models principais do Banco   
 
 
-def dentro_do_horario_permitido(data_reserva: date, inicio: str, fim: str):
-    """Retorna (ok, mensagem). Regras:
+#serve pra verificar se a reserva está dentro do horario permitido pela regra do sistema
+def dentro_do_horario_permitido(data_reserva: date, inicio: str, fim: str): 
+    """Retorna (ok, mensagem). Regras:  
     - Segunda a sexta: 07:00 às 22:00
     - Sábado: 07:00 às 12:00
     - Domingo: proibido
     """
-    if inicio >= fim:
+    if inicio >= fim: # verifica se o horario de inicio é maior que o de fim ( conflito )
         return False, 'O horário de início precisa ser menor que o horário de fim.'
 
     dia_semana = data_reserva.weekday()  # segunda=0, domingo=6
@@ -35,7 +36,7 @@ def dentro_do_horario_permitido(data_reserva: date, inicio: str, fim: str):
 
     return True, ''
 
-
+#consulta ao banco usando ORM do Django ( Objct Relational Mapping )
 def existe_conflito(sala_id: int, data_txt: str, inicio: str, fim: str):
     return Reserva.objects.filter(
         sala_id=sala_id,
@@ -43,11 +44,11 @@ def existe_conflito(sala_id: int, data_txt: str, inicio: str, fim: str):
         status='ativa',
         hora_inicio__lt=fim,
         hora_fim__gt=inicio,
-    ).exists()
+    ).exists() # se existe uma reserva que coincide com esse filtro
 
 def cadastro(request):
-    if request.method == 'POST':
-        form = CadastroProfessorForm(request.POST)
+    if request.method == 'POST': #verifica se o usuario enviou o formulario
+        form = CadastroProfessorForm(request.POST) #criar formulario com os dados enviados
 
         if form.is_valid():
             usuario = form.save()
@@ -65,13 +66,14 @@ def cadastro(request):
 def painel(request):
     if request.method == 'POST':
         sala_id = request.POST.get('sala_id')
-        nome = request.POST.get('nome', '').strip()
-        matricula = request.POST.get('matricula', '').strip()
+        perfil = request.user.perfilprofessor
+        nome = request.user.first_name
+        matricula = perfil.matricula
         data_txt = request.POST.get('data')
         hora_inicio = request.POST.get('hora_inicio')
         hora_fim = request.POST.get('hora_fim')
 
-        if not all([sala_id, nome, matricula, data_txt, hora_inicio, hora_fim]):
+        if not all([sala_id, data_txt, hora_inicio, hora_fim]):
             messages.error(request, 'Preencha todos os campos da reserva.')
             return redirect('painel')
 
@@ -105,6 +107,7 @@ def painel(request):
             funcionario.save(update_fields=['nome'])
 
         Reserva.objects.create(
+            usuario=request.user,
             funcionario=funcionario,
             sala=sala,
             data=data_txt,
@@ -156,7 +159,12 @@ def painel(request):
 @require_POST
 def cancelar_reserva(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id)
-    reserva.status = 'cancelada'
-    reserva.save(update_fields=['status'])
-    messages.success(request, 'Reserva cancelada com sucesso.')
+
+    if reserva.usuario == request.user or request.user.is_staff:
+        reserva.status = 'cancelada'
+        reserva.save(update_fields=['status'])
+        messages.success(request, 'Reserva cancelada com sucesso.')
+    else:
+        messages.error(request, 'Você não tem permissão para cancelar esta reserva.')
+        
     return redirect('painel')
